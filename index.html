@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>CRUD con Vue js</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <style>
+
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert"></script>
+</head>
+<body>
+    
+    <div id="app">
+        <div class="container">
+            <p><br/></p>
+            <div class="row">
+                <div class="col-md-a"></div>
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Email</th>
+                            <th>Celular</th>
+                            <th>Domicilio</th>
+                            <th width="130">Opciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="item in items" v-bind:key="item.id">
+                            <td>{{ item.id }}</td>
+                            <td>{{ item.nombre }}</td>
+                            <td>{{ item.email }}</td>
+                            <td>{{ item.celular }}</td>
+                            <td>{{ item.domicilio }}</td>
+                            
+                            <td class="text-center"> 
+                                <button @click="editar(item)" class="btn btn-warning">Editar</button>
+                                <button @click="eliminar(item)" class="btn btn-danger">Eliminar</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-4">
+                <form>
+                    <div class="form-group">
+                        <label>ID</label>
+                        <input type="text" v-model="input.id" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre</label>
+                        <input type="text" v-model="input.nombre" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" placeholder="ejemplo@gmail.com" v-model="input.email" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Celular</label>
+                        <input type="tel" v-model="input.celular" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Domicilio</label>
+                        <textarea class="form-control" v-model="input.domicilio"></textarea>
+                    </div>
+                    <button v-if="guardarbtn" @click.prevent="guardar" class="btn btn-primary">Guardar</button>
+                    <button v-if="actualizarbtn" @click.prevent="actualizar(input.id)" class="btn btn-primary">Actualizar</button>
+                    <button @click.prevent="borrar" class="btn btn-info">Borrar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data: {
+                items: [],
+
+                input: {
+                    id: '',
+                    nombre: '',
+                    email: '',
+                    celular: '',
+                    domicilio: ''
+                },
+                guardarbtn: true,
+                actualizarbtn: false
+            },
+            created: function(){
+                this.view()
+            },
+            methods: {
+                view: function(){
+                    this.items = [
+                        { id: '1', nombre: 'Antonio Cabrera', email: 'anto_nio@gmail.com', celular: '3124531224',
+                        domicilio: 'paseo de las rosas #44'},
+                        { id: '2', nombre: 'Francisco Gonzalez', email: 'Francisco_g@gmail.com', celular: '3125930229',
+                        domicilio: 'villas de ortiz #901'},
+                        { id: '3', nombre: 'Arnulfo Rivera', email: 'arnulf_river@gmail.com', celular: '3121014752',
+                        domicilio: 'francisco villa #542'},
+                        { id: '4', nombre: 'Angela Baltazar', email: 'ang_balt@gmail.com', celular: '3121970855',
+                        domicilio: 'lopez mateos #123'},
+                        { id: '5', nombre: 'Adriana Corona', email: 'Adriana_cor@gmail.com', celular: '3123429187',
+                        domicilio: 'xanchopan #14'}
+                    ]
+                },
+                guardar: function(){
+                    let id = this.input.id
+                    let nm = this.input.nombre
+                    let em = this.input.email
+                    let cel = this.input.celular
+                    let dom = this.input.domicilio
+
+                    this.items.push({id: id, nombre: nm, email: em, celular: cel, domicilio: dom})
+                    this.borrar()
+
+                    swal('Agregado', 'Nuevo elemento registrado', 'success')
+                },
+                borrar: function(){
+                    this.guardarbtn = true
+                    this.actualizarbtn = false
+
+                    this.input.id = ''
+                    this.input.nombre = ''
+                    this.input.email = ''
+                    this.input.celular = ''
+                    this.input.domicilio = ''
+                },
+                editar: function(item){
+                    this.guardarbtn = false
+                    this.actualizarbtn = true
+
+                    this.input.id = item.id
+                    this.input.nombre = item.nombre
+                    this.input.email = item.email
+                    this.input.celular = item.celular
+                    this.input.domicilio = item.domicilio
+                },
+                actualizar: function(id){
+                    let myid = id - 1
+                    Object.assign(this.items[myid], this.input)
+                    this.borrar()
+
+                    swal('Actualizado', 'El elemento se modificó', 'warning')
+                },
+                eliminar: function(item){
+                    let del = this.items.indexOf(item)
+                    swal({
+                        title: 'El elemento será eliminado',
+                        text: '¿Esta seguro de eliminarlo?',
+                        icon: 'error',
+                        buttons: true,
+                        dangerMode: true
+                    }).then((willDelete) => {
+                        if(willDelete){
+                            this.items.splice(del, 1)
+                            swal("El registro se ha eliminado", {
+                            icon: "success",
+                            });
+                        } else{
+
+                        }
+                    })
+                }
+            }
+        })
+    </script>
+</body>
+</html>
